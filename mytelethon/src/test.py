@@ -32,9 +32,9 @@ from datetime import datetime
 #     message: MessageService
 #     entity: User
 
-text = "Dialog(name='Анил Москва', out=False, message=Message(id=2333, peer_id=PeerUser(user_id=272992901)))"
+text = "Dialog(name='name contact', out=False, message=Message(id=2333, peer_id=PeerUser(user_id=272992901)))"
 txt = """Dialog(
-        name='ДианаВладиславовнаКорнева',
+        name='namecontact1',
         date=datetime.datetime(2021, 4, 9, 15, 13, 41, tzinfo=datetime.timezone.utc),
         message=MessageService(
                 id=47,
@@ -79,7 +79,7 @@ txt = """Dialog(
                 stories_hidden=False,
                 stories_unavailable=True,
                 access_hash=7277724265657408838,
-                first_name='ДианаВладиславовнаКорнева',
+                first_name='namecontact1',
                 last_name=None,
                 username=None,
                 phone='79517253016',
