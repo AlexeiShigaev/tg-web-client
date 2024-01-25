@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Hello</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    </script>
+</head>
+<body>
+<h1>Телеграм клиент</h1>
+
+<div id="info">
+        <div>
+            <label for="phone">Ваш номер телефона для авторизации:<br>
+                Российский номер +7-921-921-0123 должен быть по форме 79219210123
+            </label><br>
+            <input id="phone" name="phone" type="tel" oninput="tel_validate()"/>
+        </div>
+    <div>
+        <button id="send_button" onclick="send()" disabled>Submit</button>
+    </div>
+    <div id="qrcode">
+    </div>
+</div>
+<div id="status">Введите номер телефона для авторизации в telegram</div>
+<div id="check"></div>
+
+<script>
+    function tel_validate() {
+        document.querySelector('#send_button').disabled = true;
+        let tel = document.getElementById("phone").value;
+        if (tel.match(/^\d{11,}$/)) {
+            document.querySelector('#send_button').disabled = false
+        }
+    }
+
+
+    async function send() {
+        // получаем введенное в поле имя и возраст
+        const phone = document.getElementById("phone").value;
+        // Проверяем пока не увидим авторизацию
+        const interval = setInterval(
+            function () {
+                get_auth_status(phone);
+            },
+            1500
+        );
+        // отправляем запрос
+        const response = await fetch("/api/login", {
+            method: "POST",
+            headers: {"Accept": "application/json", "Content-Type": "application/json"},
+            body: JSON.stringify({
+                'phone': phone
+            })
+        });
+        document.getElementById("status").textContent = "send"
+
+        if (response.ok) {
+            const data = await response.json();
+            // Если уже авторизованы, перейдем в клиента
+            if (data['qr_link_url'] === "authorized"){
+                redirect(phone);
+            } else {
+                document.getElementById("status").outerHTML = "Откройте телеграм на смартфоне,<br>" +
+                    "перейдите в настройки, устройства,<br>отсканируйте QR-код для подтверждения нового входа.";
+                document.getElementById("qrcode").textContent = "";
+
+                // покажем QR-код
+                const qrcode = new QRCode("qrcode", data['qr_link_url']);
+            }
+        } else {
+            // console.log('response not OK');
+            document.getElementById("status").outerHTML = "Ошибка получения QR-кода. Нажмите Ctrl+F5.";
+            console.log(response);
+        }
+    }
+
+    async function get_auth_status(phone) {
+        document.getElementById("check").textContent = "Запрос статуса..."
+
+        const response = await fetch("/api/check/status?phone=" + phone, {
+            method: "GET",
+            headers: {"Accept": "application/json", "Content-Type": "application/json"}
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById("check").textContent = "Статус пользователя: " + data['status']
+            if (data['status'] === "authorized") redirect(phone);
+
+        } else {
+            document.getElementById("check").textContent = "Ошибка получения статуса."
+        }
+    }
+
+    function redirect(phone) {
+        window.location.href = "/client?phone=" + phone;
+    }
+
+</script>
+
+
+</body>
+</html>

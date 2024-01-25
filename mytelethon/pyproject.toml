@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "mytelethon"
+version = "0.1.0"
+description = "telethon client for telegram"
+authors = ["Alexei Shigaev <9212010568@inbox.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+telethon = "^1.33.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

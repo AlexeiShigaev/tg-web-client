@@ -1,0 +1,57 @@
+html,
+body,
+.c_main {
+    height: 100%;
+}
+
+.c_cont {
+    box-sizing: border-box;
+    height: 600px;
+    overflow-y: scroll;
+}
+
+.status {
+    height: 80px;
+    margin-top: -80px;
+    padding: 15px;
+    /*float: bottom;*/
+    position: relative;
+    display: block;
+}
+
+.c_content {
+    max-width: 980px;
+    width: 980px;
+    position: relative;
+    display: block;
+}
+
+.c-left {
+    max-width: 300px;
+    width: 300px;
+    height: 600px;
+    overflow-y: scroll;
+    background: #f1f1f1;
+    float: left;
+    margin: 0 15px 15px 0;
+    /*text-align: left;*/
+    padding: 10px;
+    min-height: 200px;
+}
+
+.c_right {
+    max-width: 630px;
+    width: 630px;
+    background: #f1f1f1;
+    float: right;
+    margin: 0 15px 15px 0;
+    text-align: left;
+    padding: 10px;
+    min-height: 200px;
+}
+
+.align_right {
+    text-align: right;
+}
+
+
