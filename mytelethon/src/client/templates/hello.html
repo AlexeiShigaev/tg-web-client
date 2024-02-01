@@ -1,29 +1,62 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
     <title>Hello</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
     </script>
+    <style>
+        .divider: after,
+        .divider: before {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #eee;
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+
 </head>
 <body>
-<h1>Телеграм клиент</h1>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 
-<div id="info">
-        <div>
-            <label for="phone">Ваш номер телефона для авторизации:<br>
-                Российский номер +7-921-921-0123 должен быть по форме 79219210123
-            </label><br>
-            <input id="phone" name="phone" type="tel" oninput="tel_validate()"/>
+
+<section class="vh-100">
+    <div class="container py-5 h-100">
+        <div class="row d-flex align-items-center justify-content-center h-100">
+            <div class="col-md-8 col-lg-7 col-xl-6">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.svg"
+                     width="400px" class="img-fluid" alt="Phone image">
+            </div>
+
+            <div id="info-container" class="col-md-7 col-lg-5 col-xl-5 offset-xl-1">
+                <div id="info" class="height: 270px">
+                    <!-- PhoneNumber input -->
+                    <div class="form-outline mb-4">
+                        <label class="form-label" for="phone">Ваш номер телефона для авторизации:</label>
+                        <input type="tel" id="phone" class="form-control form-control-lg" oninput="tel_validate()"/>
+                        <label class="form-label" for="phone">если +7-921-921-0123 введите 79219210123</label>
+                    </div>
+
+                    <div class="d-flex justify-content-around align-items-center mb-4">
+                        <!-- Submit button -->
+
+                        <button id="send_button" onclick="send()" disabled class="btn btn-primary btn-lg btn-block">
+                            Submit
+                        </button>
+                    </div>
+
+                </div>
+                <div id="status">
+                    Введите номер телефона для авторизации в telegram
+                </div>
+                <div id="check"></div>
+            </div>
         </div>
-    <div>
-        <button id="send_button" onclick="send()" disabled>Submit</button>
-    </div>
-    <div id="qrcode">
-    </div>
-</div>
-<div id="status">Введите номер телефона для авторизации в telegram</div>
-<div id="check"></div>
+</section>
 
 <script>
     function tel_validate() {
@@ -58,12 +91,12 @@
         if (response.ok) {
             const data = await response.json();
             // Если уже авторизованы, перейдем в клиента
-            if (data['qr_link_url'] === "authorized"){
+            if (data['qr_link_url'] === "authorized") {
                 redirect(phone);
             } else {
                 document.getElementById("status").outerHTML = "Откройте телеграм на смартфоне,<br>" +
                     "перейдите в настройки, устройства,<br>отсканируйте QR-код для подтверждения нового входа.";
-                document.getElementById("qrcode").textContent = "";
+                document.getElementById("info").outerHTML = "<div id=\"qrcode\"></div>";
 
                 // покажем QR-код
                 const qrcode = new QRCode("qrcode", data['qr_link_url']);

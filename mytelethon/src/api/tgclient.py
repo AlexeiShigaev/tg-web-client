@@ -4,17 +4,17 @@ from collections import namedtuple
 from fastapi.responses import JSONResponse
 from typing import Tuple, Optional, List, Dict
 
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 from telethon.helpers import TotalList
 from telethon.tl.custom import QRLogin
 from dataclasses import dataclass
 
 from telethon.tl.types import PeerUser, PeerChannel
 
-from .utils import dialog_to_dict
+from .utils import object_to_dict, to_dict_req
 
-TELEGRAM_API_ID = 1942
-TELEGRAM_API_HASH = "46da4f70b93e7ba"
+TELEGRAM_API_ID = 19247042
+TELEGRAM_API_HASH = "46da5b325cae69f8e8fab4f70b93e7ba"
 
 DISCONNECTED = (0, "disconnected")
 CONNECTED = (1, "connected")
@@ -27,6 +27,10 @@ class TTClient(TelegramClient):
     qr_login_obj: QRLogin = None
     dialogs = {}
     messages = {}
+
+    async def my_event_handler(self, event):
+        print("NewMessage contents dialog_to_dict:", object_to_dict(event))
+        print("NewMessage contents to_dict_req:", to_dict_req(event))
 
 
 @dataclass()
@@ -59,17 +63,20 @@ class TTClientsManager:
 
     @classmethod
     async def get_client_by_tel(cls, tel: str) -> Optional[TTClient]:
-        print("get_client_by_tel {}".format(tel))
+        # print("get_client_by_tel {}".format(tel))
         if tel in cls.clients:
             return cls.clients[tel]
 
         loop = asyncio.get_event_loop()
-        cls.clients[tel] = TTClient("sn{}".format(tel), TELEGRAM_API_ID, TELEGRAM_API_HASH, loop=loop)
-        cls.clients[tel].status = DISCONNECTED
+        new_client = TTClient("sn{}".format(tel), TELEGRAM_API_ID, TELEGRAM_API_HASH, loop=loop)
+        new_client.add_event_handler(new_client.my_event_handler, events.NewMessage)
+        new_client.status = DISCONNECTED
+        cls.clients[tel] = new_client
+
         try:
             await cls.clients[tel].connect()
         except OSError as ex:
-            print("get_client_by_tel {}: connection error {}".format(tel, ex))
+            # print("get_client_by_tel {}: connection error {}".format(tel, ex))
             cls.clients[tel].disconnect()
             del cls.clients[tel]
             return None
@@ -111,26 +118,31 @@ class TTClientsManager:
         # client = await cls.get_client_by_tel(tel)
         if await cls.get_client_by_tel(tel) is None:
             return "No client {}".format(tel)
-        print("get_auth_status for client {}: {}".format(tel, cls.clients[tel].status[1]))
+        # print("get_auth_status for client {}: {}".format(tel, cls.clients[tel].status[1]))
         return cls.clients[tel].status[1]
 
     @classmethod
     async def get_dialogs(cls, tel):
         print("----------------------------------------------------------------------")
         print("get_dialogs {}".format(tel))
-        ret_dict = {}
+        ret_list = []
         client = await cls.get_client_by_tel(tel)
         dialogs = await client.get_dialogs()
-        for dialog in dialogs:
-            # print("doalog:", dialog_to_dict(dialog))
-            client.dialogs[dialog.entity.id] = dialog
-            if dialog.name == "":
-                ret_dict[dialog.entity.id] = dialog.entity.id
-            else:
-                ret_dict[dialog.entity.id] = dialog.name
 
-        print("ret:\n", ret_dict)
-        return ret_dict
+        # print("dialog contents:", dialog_to_dict(dialogs[0]))
+        for dialog in dialogs:
+            print("dialog contents:", object_to_dict(dialog))
+            # if not dialog.archived:
+            client.dialogs[dialog.entity.id] = dialog
+            ret_list.append({
+                'id': dialog.entity.id,
+                'title': dialog.entity.id if dialog.title == "" else dialog.title,
+                'unread_count': dialog.unread_count,
+                'username': dialog.entity.username,
+            })
+
+        # print("ret:\n", ret_list)
+        return ret_list
 
         # return JSONResponse()
         # ret_list.append([dialog.name, dialog.entity.id])
@@ -148,9 +160,11 @@ class TTClientsManager:
         print("get_messages {}, entity {}".format(tel, entity))
         client = await cls.get_client_by_tel(tel)
         client.messages = await client.get_messages(int(entity), limit=3)
-        # print("messages:", client.messages)
+
         ret_messages = {}
         for mess in client.messages:
+            # print("\nmessage contents dialog_to_dict:", dialog_to_dict(mess))
+            # print("message contents to_dict_req:", to_dict_req(mess))
             try:
                 ret_messages[mess.id] = {
                     'from_id': None if mess.from_id is None else mess.from_id.user_id,

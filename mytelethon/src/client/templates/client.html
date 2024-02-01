@@ -12,33 +12,42 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-<div id="id_main" class="c_main">
-    <div id="id_header" class="c_header">
-        <h1>Телеграм клиент</h1>
-    </div>
-    <div class="c_content c_cont">
-        <div id="id_dialogs" class="list-group c-left">
 
-            <a href="#" class="list-group-item d-flex justify-content-between align-items-start">
-                <div class="ms-2 me-auto">
-                    <div class="fw-bold">Список контактов</div>
+<section class="vh-100">
+    <div class="container py-2 h-80">
+        <div class="row d-flex align-items-center justify-content-center h-100">
+            <div id="id_main" class="c_main">
+                <div id="id_header" class="c_header">
+                    <h1>Телеграм клиент</h1>
                 </div>
-                <span class="badge bg-primary rounded-pill">0</span>
-            </a>
+                <div class="c_content c_cont">
+                    <div id="id_dialogs" class="list-group c-left">
 
+                        <a href="#" class="list-group-item d-flex justify-content-between align-items-start"
+                        data-item="1">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Список контактов</div>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">0</span>
+                        </a>
+
+                    </div>
+
+                    <div id="id_messages" class="list-group c_right c_cont">
+                        <a href="#" class="list-group-item list-group-item-action list-group-item-light">
+                            сообщения
+                        </a>
+                    </div>
+
+                </div>
+
+            </div>
+            <div id="status" class="status">Строка статуса</div>
         </div>
-
-        <div id="id_messages" class="list-group c_right c_cont">
-            <a href="#" class="list-group-item list-group-item-action list-group-item-light">
-                сообщения
-            </a>
-        </div>
-
     </div>
-
-</div>
-<div id="status" class="status">Строка статуса</div>
+</section>
 
 <input id="phone" type="hidden" value="{{ phone }}">
 <script src="{{ url_for('static', path='client.js') }}"></script>
