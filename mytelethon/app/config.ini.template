@@ -1,0 +1,12 @@
+[telegram_api]
+; obtain api keys here: https://core.telegram.org/api/obtaining_api_id
+; only api_id and api_hash are needed for the application to work
+api_id = 322211042
+api_hash = 46da5bewfvfvew34f70b93e7ba
+bind_host = 0.0.0.0
+bind_port = 8899
+
+[db]
+; database_url=postgresql+asyncpg://username:userpasswd@host:port/dbname
+database_url=postgresql+asyncpg://testpguser:pgpwd4test@172.17.0.1:5432/mytelethon
+

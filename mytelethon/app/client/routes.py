@@ -2,13 +2,13 @@ from fastapi import APIRouter, Request, status, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
-from .aiohttpconnector import AiohttpConnector
-from .models import TelNumber, QRUrl, AuthStatus
+# from .aiohttpconnector import AiohttpConnector
+# from .models import TelNumber, QRUrl, AuthStatus
 
 # from qrcode import QRCode
 
 router = APIRouter(tags=["client"])
-templates = Jinja2Templates(directory="src/client/templates")
+templates = Jinja2Templates(directory="app/client/templates")
 
 
 @router.get('/nak', status_code=200)

@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+
+  pgdb:
+    image: postgres:15.1-alpine
+    #    volumes:
+    #      - postgres_data:/var/lib/postgresql/data/
+    #      - .:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: "testdb"
+      POSTGRES_USER: "testpguser"
+      POSTGRES_PASSWORD: "pgpwd4test"
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4:8.2
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "testpguser@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "pgadminpwd4test"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      - pgdb
+
+  mytelethon:
+    build: ./mytelethon/
+    volumes:
+      - ./mytelethon/app:/mytelethon/app
+    command: python app/main.py
+    #    command: |
+    #      /bin/bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python src/main.py'
+    ports:
+      - "8899:8899"
+    depends_on:
+      - pgdb
+
+volumes:
+  postgres_data:
+

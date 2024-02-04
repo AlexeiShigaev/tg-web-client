@@ -1,20 +1,20 @@
 import asyncio
-import json
-from collections import namedtuple
-from fastapi.responses import JSONResponse
 from typing import Tuple, Optional, List, Dict
 
+import telethon
 from telethon import TelegramClient, events
-from telethon.helpers import TotalList
 from telethon.tl.custom import QRLogin
 from dataclasses import dataclass
 
 from telethon.tl.types import PeerUser, PeerChannel
 
+from config import config as conf
 from .utils import object_to_dict, to_dict_req
 
-TELEGRAM_API_ID = 19247042
-TELEGRAM_API_HASH = "46da5b325cae69f8e8fab4f70b93e7ba"
+from api.models import DialogsRecord
+
+TELEGRAM_API_ID = conf.get('telegram_api', 'api_id')
+TELEGRAM_API_HASH = conf.get('telegram_api', 'api_hash')
 
 DISCONNECTED = (0, "disconnected")
 CONNECTED = (1, "connected")
@@ -24,9 +24,13 @@ AUTHORIZED = (3, "authorized")
 
 class TTClient(TelegramClient):
     status = DISCONNECTED
+    phone_number: str = ""
     qr_login_obj: QRLogin = None
     dialogs = {}
     messages = {}
+
+    async def load_dialogs_from_base(self):
+        ...
 
     async def my_event_handler(self, event):
         print("NewMessage contents dialog_to_dict:", object_to_dict(event))
@@ -50,13 +54,6 @@ class WaitQRCodeAuthTask:
         return self.client.status[1]
 
 
-# MessageService = namedtuple('MessageService', ('id', 'peer_id'))
-#
-# User = namedtuple('User', ('id', 'contact', 'bot', 'first_name', 'last_name', 'username'))
-#
-# Dialog = namedtuple('Dialog', ('name', 'message', 'entity'))
-
-
 class TTClientsManager:
     clients: Dict[str, TTClient] = {}
     waiting_tasks = []
@@ -69,6 +66,7 @@ class TTClientsManager:
 
         loop = asyncio.get_event_loop()
         new_client = TTClient("sn{}".format(tel), TELEGRAM_API_ID, TELEGRAM_API_HASH, loop=loop)
+        new_client.phone_number = tel
         new_client.add_event_handler(new_client.my_event_handler, events.NewMessage)
         new_client.status = DISCONNECTED
         cls.clients[tel] = new_client
@@ -101,6 +99,7 @@ class TTClientsManager:
         if client is None:
             return "No client {}".format(tel)
         if client.status == AUTHORIZED:
+            # await client.load_dialogs_from_base()
             return "authorized"
 
         client.qr_login_obj = await client.qr_login()
@@ -115,7 +114,6 @@ class TTClientsManager:
 
     @classmethod
     async def get_auth_status(cls, tel: str):
-        # client = await cls.get_client_by_tel(tel)
         if await cls.get_client_by_tel(tel) is None:
             return "No client {}".format(tel)
         # print("get_auth_status for client {}: {}".format(tel, cls.clients[tel].status[1]))
@@ -124,7 +122,7 @@ class TTClientsManager:
     @classmethod
     async def get_dialogs(cls, tel):
         print("----------------------------------------------------------------------")
-        print("get_dialogs {}".format(tel))
+        print("get_dialogs: {}".format(tel))
         ret_list = []
         client = await cls.get_client_by_tel(tel)
         dialogs = await client.get_dialogs()

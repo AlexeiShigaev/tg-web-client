@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Query, Depends
 
-from .models import TelNumber
-from .tgclient import TTClientsManager as TTCManager
+from api.models import TelNumber
+from api.tgclient import TTClientsManager as TTCManager
 
 router = APIRouter(tags=["api"])
 
@@ -10,9 +10,8 @@ router = APIRouter(tags=["api"])
 async def api_login(phone: TelNumber):
     """
     tel получается не используется.
-    :param phone:
-    :param tel: номер телефона клиента для авторизации.
-    :return: url: str. URL для QR-кода для авторизации.
+    :param phone: TelNumber, Структура данных с номером телефона клиента для авторизации.
+    :return: url: str. URL для QR-кода для авторизации ИЛИ "authorized" если авторизация уже прошла.
     """
     print("api_login: tel: {}".format(phone))
     qr_login_url = await TTCManager.get_qrcode_url(phone.phone)

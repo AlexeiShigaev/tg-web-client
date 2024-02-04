@@ -1,8 +1,10 @@
+from sqlmodel import SQLModel, Field
+
 from fastapi import Query
-from pydantic import BaseModel, Field
+# from pydantic import BaseModel
 
 
-class TelNumber(BaseModel):
+class TelNumber(SQLModel):
     phone: str = Field(Query(regex=r"^\d{11,}$"))
 
     model_config = {
@@ -17,7 +19,7 @@ class TelNumber(BaseModel):
     }
 
 
-class QRUrl(BaseModel):
+class QRUrl(SQLModel):
     qr_link_url: str
 
     model_config = {
@@ -31,7 +33,7 @@ class QRUrl(BaseModel):
     }
 
 
-class AuthStatus(BaseModel):
+class AuthStatus(SQLModel):
     status: str
 
     model_config = {
@@ -44,3 +46,14 @@ class AuthStatus(BaseModel):
         }
     }
 
+
+# *******************************************************************************
+
+class DialogBase(SQLModel):
+    name: str
+    artist: str
+
+
+class DialogsRecord(DialogBase, table=True):
+    __tablename__ = "dialogs"
+    id: int = Field(default=None, primary_key=True)
